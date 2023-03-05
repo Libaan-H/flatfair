@@ -9,7 +9,7 @@ describe('Calculate Membership Fee', () => {
       45000
     )
   })
-  it('should rent be 300, rent period is a week and org unit is branch_l, fee should be 45000', () => {
+  it('should rent be 300, rent period is a week and org unit is branch_k, fee should be 45000', () => {
     expect(calculateMembershipFee(300, RentPeriodEnum.Week, 'branch_k')).toBe(
       25000
     )
