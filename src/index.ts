@@ -9,7 +9,6 @@ import {
 import { RentPeriodEnum, type OrganisationUnitConfig } from "./types";
 import * as data from "./input.json";
 
-
 // Parse the input JSON
 const orgStructureConfig = JSON.parse(JSON.stringify(data));
 
