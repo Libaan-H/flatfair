@@ -3,10 +3,13 @@ import {
   MAX_RENT_WEEKLY,
   MIN_MEMBERSHIP_PRICE,
   VAT_RATE,
+  MAX_RENT_MONTHLY,
+  MIN_RENT_MONTHLY,
 } from "./constant";
 import { RentPeriodEnum, type OrganisationUnitConfig } from "./types";
-
 import * as data from "./input.json";
+
+
 // Parse the input JSON
 const orgStructureConfig = JSON.parse(JSON.stringify(data));
 
@@ -35,28 +38,40 @@ export function calculateMembershipFee(
     return config.fixed_membership_fee_amount;
   }
 
-  const RentInPence = rentInput * 100;
-  // if rentPeriod is week, return the input else divide by 4 to calc week value
-  const rentAmount: number =
-    rentPeriod == RentPeriodEnum.Week ? RentInPence : RentInPence / 4;
+  const rentAmount = rentInput * 100;
+  const minRentAmount =
+    rentPeriod == RentPeriodEnum.Week ? MIN_RENT_WEEKLY : MIN_RENT_MONTHLY;
+  const maxRentAmount =
+    rentPeriod == RentPeriodEnum.Week ? MAX_RENT_WEEKLY : MAX_RENT_MONTHLY;
 
-  // Check if the rent input is within the allowed range
-  if (rentAmount < MIN_RENT_WEEKLY || rentAmount > MAX_RENT_WEEKLY) {
-    throw new Error("Rent input is outside of the allowed range");
+  if (rentAmount < minRentAmount || rentAmount > maxRentAmount) {
+    throw new Error(
+      `Rent input is outside of the allowed range. Minimum rent amount is £${(
+        minRentAmount / 100
+      ).toFixed(2)} per ${
+        rentPeriod === RentPeriodEnum.Week ? "week" : "month"
+      }, maximum rent amount is £${(maxRentAmount / 100).toFixed(2)} per ${
+        rentPeriod === RentPeriodEnum.Week ? "week" : "month"
+      }.`
+    );
   }
 
+  const weeksRent: number =
+    rentPeriod == RentPeriodEnum.Week ? rentAmount : rentAmount / 4;
+
   // Calculate the membership fee based on the config object and rent input
-  const membershipFee = rentAmount + calculateVAT(rentAmount);
+  const membershipFee = weeksRent + calculateVAT(weeksRent);
   if (membershipFee < MIN_MEMBERSHIP_PRICE) return MIN_MEMBERSHIP_PRICE;
   return membershipFee;
 }
 
 // Example usage
-const rentInput = 800;
-const unitName = "branch_l";
+const rentInput = 200;
+const unitName = "branch_e";
 const membershipFee = calculateMembershipFee(
   rentInput,
-  RentPeriodEnum.Week,
+  RentPeriodEnum.Month,
   unitName
 );
 console.log(`Membership fee: £${(membershipFee / 100).toFixed(2)}`);
+// Sum in full pounds
